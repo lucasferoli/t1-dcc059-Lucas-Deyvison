@@ -9,19 +9,31 @@ Grafo::~Grafo() {
 }
 
 
+
+
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     set<char> visitados;
     stack<No*> pilha;
     vector<char> resultado;
 
-    // Encontrar o nó inicial
-    No* no_inicial = nullptr;
-    for (No* no : lista_adj) {
-        if (no->id == id_no) {
-            no_inicial = no;
-            break;
-        }
+
+     No* no_inicial = nullptr;
+     
+cout << "Buscando nó: " << id_no << endl;
+for (No* no : lista_adj) {
+    cout << "Nó na lista: " << no->id << endl;
+    if (no->id == id_no) {
+        no_inicial = no;
+        break;
     }
+}
+
+cout << "Nos presentes no grafo:" << endl;
+
+for (No* no : lista_adj) {
+    cout << " - " << no->id << endl;
+}
+
 
     if (!no_inicial) {
         cout << "Nó não encontrado: " << id_no << endl;
