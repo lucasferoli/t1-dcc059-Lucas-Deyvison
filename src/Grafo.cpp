@@ -1,6 +1,9 @@
 #include "Grafo.h"
 #include <set>
 #include <stack>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
 
 Grafo::Grafo() {
 }
@@ -8,6 +11,77 @@ Grafo::Grafo() {
 Grafo::~Grafo() {
 }
 
+Grafo* Grafo::lerGrafoDoArquivo(const std::string& caminhoArquivo) {
+    std::ifstream arquivo(caminhoArquivo);
+    if (!arquivo.is_open()) {
+        throw std::runtime_error("Erro ao abrir arquivo");
+    }
+
+    Grafo* grafo = new Grafo();
+    std::string linha;
+    
+    // 1ª Linha: Flags do grafo (direcionado, ponderado arestas, ponderado vértices)
+    std::getline(arquivo, linha);
+    std::istringstream flagsStream(linha);
+    flagsStream >> grafo->in_direcionado >> grafo->in_ponderado_vertice >> grafo->in_ponderado_aresta;
+
+    // 2ª Linha: Número de vértices
+    std::getline(arquivo, linha);
+    grafo->ordem = std::stoi(linha);
+
+    // Linhas seguintes: Vértices (IDs)
+    for (int i = 0; i < grafo->ordem; ++i) {
+        std::getline(arquivo, linha);
+        No* novoNo = new No();
+        novoNo->id = linha[0];  // Assume 1 char por vértice
+        novoNo->peso = 0;       // Inicializa sem peso
+        grafo->lista_adj.push_back(novoNo);
+    }
+
+    // Restante: Arestas (origem destino [peso])
+    while (std::getline(arquivo, linha)) {
+        std::istringstream arestaStream(linha);
+        char origem, destino;
+        int peso = 1;
+        
+        arestaStream >> origem >> destino;
+        if (grafo->in_ponderado_aresta) {
+            arestaStream >> peso;
+        }
+        
+        grafo->adicionarAresta(origem, destino, peso);
+    }
+
+    return grafo;
+}
+
+void Grafo::adicionarAresta(char origem, char destino, int peso) {
+    Aresta* novaAresta = new Aresta();
+    novaAresta->id_no_alvo = destino;
+    novaAresta->peso = peso;
+
+    // Encontra nó de origem e adiciona aresta
+    for (No* no : lista_adj) {
+        if (no->id == origem) {
+            no->arestas.push_back(novaAresta);
+            break;
+        }
+    }
+
+    // Se grafo não-direcionado, adiciona aresta inversa
+    if (!in_direcionado) {
+        Aresta* arestaInversa = new Aresta();
+        arestaInversa->id_no_alvo = origem;
+        arestaInversa->peso = peso;
+        
+        for (No* no : lista_adj) {
+            if (no->id == destino) {
+                no->arestas.push_back(arestaInversa);
+                break;
+            }
+        }
+    }
+}
 
 
 
