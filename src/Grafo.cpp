@@ -20,20 +20,20 @@ Grafo* Grafo::lerGrafoDoArquivo(const std::string& caminhoArquivo) {
     Grafo* grafo = new Grafo();
     std::string linha;
     
-    // 1ª Linha: Flags do grafo (direcionado, ponderado arestas, ponderado vértices)
+    // 1a Linha: Flags do grafo (direcionado, ponderado arestas, ponderado vertices)
     std::getline(arquivo, linha);
     std::istringstream flagsStream(linha);
     flagsStream >> grafo->in_direcionado >> grafo->in_ponderado_vertice >> grafo->in_ponderado_aresta;
 
-    // 2ª Linha: Número de vértices
+    // 2a Linha: Numero de vertices
     std::getline(arquivo, linha);
     grafo->ordem = std::stoi(linha);
 
-    // Linhas seguintes: Vértices (IDs)
+    // Linhas seguintes: Vertices (IDs)
     for (int i = 0; i < grafo->ordem; ++i) {
         std::getline(arquivo, linha);
         No* novoNo = new No();
-        novoNo->id = linha[0];  // Assume 1 char por vértice
+        novoNo->id = linha[0];  // Assume 1 char por vertice
         novoNo->peso = 0;       // Inicializa sem peso
         grafo->lista_adj.push_back(novoNo);
     }
@@ -60,7 +60,7 @@ void Grafo::adicionarAresta(char origem, char destino, int peso) {
     novaAresta->id_no_alvo = destino;
     novaAresta->peso = peso;
 
-    // Encontra nó de origem e adiciona aresta
+    // Encontra no de origem e adiciona aresta
     for (No* no : lista_adj) {
         if (no->id == origem) {
             no->arestas.push_back(novaAresta);
@@ -68,7 +68,7 @@ void Grafo::adicionarAresta(char origem, char destino, int peso) {
         }
     }
 
-    // Se grafo não-direcionado, adiciona aresta inversa
+    // Se grafo nao-direcionado, adiciona aresta inversa
     if (!in_direcionado) {
         Aresta* arestaInversa = new Aresta();
         arestaInversa->id_no_alvo = origem;
@@ -84,7 +84,7 @@ void Grafo::adicionarAresta(char origem, char destino, int peso) {
 }
 
 
-
+// Transitivo Direto
 vector<char> Grafo::fecho_transitivo_direto(char id_no) {
     set<char> visitados;
     stack<No*> pilha;
@@ -93,9 +93,9 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
 
      No* no_inicial = nullptr;
      
-cout << "Buscando nó: " << id_no << endl;
+cout << "Buscando no: " << id_no << endl;
 for (No* no : lista_adj) {
-    cout << "Nó na lista: " << no->id << endl;
+    cout << "No na lista: " << no->id << endl;
     if (no->id == id_no) {
         no_inicial = no;
         break;
@@ -110,7 +110,7 @@ for (No* no : lista_adj) {
 
 
     if (!no_inicial) {
-        cout << "Nó não encontrado: " << id_no << endl;
+        cout << "No nao encontrado: " << id_no << endl;
         return {};
     }
 
@@ -125,7 +125,7 @@ for (No* no : lista_adj) {
             char id_vizinho = aresta->id_no_alvo;
 
             if (visitados.find(id_vizinho) == visitados.end()) {
-                // Procurar o nó correspondente na lista de adjacência
+                // Procurar o no correspondente na lista de adjacencia
                 No* vizinho = nullptr;
                 for (No* no : lista_adj) {
                     if (no->id == id_vizinho) {
