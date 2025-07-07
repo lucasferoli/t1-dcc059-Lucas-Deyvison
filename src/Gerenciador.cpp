@@ -1,6 +1,11 @@
 #include "Gerenciador.h"
 #include <fstream>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
 
+using namespace std;
 
 void Gerenciador::comandos(Grafo* grafo) {
     cout<<"Digite uma das opcoes abaixo e pressione enter:"<<endl<<endl;
@@ -20,11 +25,13 @@ void Gerenciador::comandos(Grafo* grafo) {
         case 'a': {
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_direto = grafo->fecho_transitivo_direto(id_no);
+
             cout << "Fecho transitivo direto a partir do no '" << id_no << "':" << endl;
             for (char id : fecho_transitivo_direto) {
                 cout << id << " ";
             }
             cout << endl << endl;
+
             if (pergunta_imprimir_arquivo("fecho_trans_dir.txt")) {
                 cout << "Metodo de impressao em arquivo nao implementado" << endl << endl;
             }
@@ -32,16 +39,37 @@ void Gerenciador::comandos(Grafo* grafo) {
         }
 
         case 'b': {
-
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_indireto = grafo->fecho_transitivo_indireto(id_no);
-            cout<<"Metodo de impressao em tela nao implementado"<<endl<<endl;
 
-            if(pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
-                cout<<"Metodo de impressao em arquivo nao implementado"<<endl;
+            // Impressao em tela
+            cout << "\nFecho transitivo indireto do vertice '" << id_no << "':" << endl;
+            if (fecho_transitivo_indireto.empty()) {
+                cout << "Nenhum vertice alcanca o vertice '" << id_no << "'" << endl;
+            } else {
+                for (char vertice : fecho_transitivo_indireto) {
+                    cout << vertice << " ";
+                }
+                cout << endl;
+                cout << "Total: " << fecho_transitivo_indireto.size() << " vertices" << endl;
             }
+            cout << endl;
 
-;
+            // Impressao em arquivo
+            if (pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
+                ofstream arquivo_saida("fecho_trans_indir.txt");
+                if (arquivo_saida.is_open()) {
+                    arquivo_saida << "Fecho transitivo indireto do vertice '" << id_no << "':\n";
+                    for (char vertice : fecho_transitivo_indireto) {
+                        arquivo_saida << vertice << " ";
+                    }
+                    arquivo_saida << "\nTotal: " << fecho_transitivo_indireto.size() << " vertices\n";
+                    arquivo_saida.close();
+                    cout << "Resultado salvo em 'fecho_trans_indir.txt'" << endl << endl;
+                } else {
+                    cout << "Erro ao criar arquivo de saida!" << endl << endl;
+                }
+            }
             break;
         }
 

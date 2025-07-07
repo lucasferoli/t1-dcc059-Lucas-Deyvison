@@ -1,0 +1,3 @@
+Fecho transitivo indireto do vertice 'c':
+h f b d i g a j e 
+Total: 9 vertices

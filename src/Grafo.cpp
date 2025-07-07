@@ -147,8 +147,46 @@ for (No* no : lista_adj) {
 }
 
 vector<char> Grafo::fecho_transitivo_indireto(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return {};
+    set<char> visitados;
+    stack<char> pilha;
+    vector<char> resultado;
+
+    // Verifica se o vertice existe
+    bool existe = false;
+    for (No* no : lista_adj) {
+        if (no->id == id_no) {
+            existe = true;
+            break;
+        }
+    }
+    if (!existe) {
+        cout << "Erro: Vertice '" << id_no << "' nao encontrado!" << endl;
+        return {};
+    }
+
+    // DFS invertido (vizinhos que apontam para o vertice)
+    pilha.push(id_no);
+    visitados.insert(id_no);
+
+    while (!pilha.empty()) {
+        char atual = pilha.top();
+        pilha.pop();
+
+        // Percorre todos os nos para encontrar arestas que chegam no 'atual'
+        for (No* no : lista_adj) {
+            for (Aresta* aresta : no->arestas) {
+                if (aresta->id_no_alvo == atual) {  // Se o no atual e alvo da aresta
+                    if (visitados.find(no->id) == visitados.end()) {
+                        visitados.insert(no->id);
+                        pilha.push(no->id);
+                        resultado.push_back(no->id);
+                    }
+                }
+            }
+        }
+    }
+
+    return resultado;
 }
 
 vector<char> Grafo::caminho_minimo_dijkstra(char id_no_a, char id_no_b) {
