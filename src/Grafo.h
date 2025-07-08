@@ -36,6 +36,8 @@ public:
 
     static Grafo* lerGrafoDoArquivo(const std::string& caminhoArquivo);
 
+    Grafo* arvore_caminhamento_profundidade(char id_no, vector<pair<char, char>>& arestas_retorno); 
+    vector<pair<char, char>> ultimas_arestas_retorno; 
 private:
     // Método auxiliar para processar linhas de arestas
     void adicionarAresta(char origem, char destino, int peso = 1);

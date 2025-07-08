@@ -5,6 +5,7 @@ using namespace std;
 class Aresta {
 public:
     Aresta();
+    Aresta(char id_no_alvo, int peso); 
     ~Aresta();
 
     char id_no_alvo;

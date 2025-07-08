@@ -161,14 +161,54 @@ void Gerenciador::comandos(Grafo* grafo) {
 
         case 'g': {
             char id_no = get_id_entrada();
-            Grafo* arvore_caminhamento_profundidade = grafo->arvore_caminhamento_profundidade(id_no);
-            cout << "Metodo de impressao em tela nao implementado" << endl << endl;
+            vector<pair<char, char>> arestas_retorno;
+            Grafo* arvore_dfs = grafo->arvore_caminhamento_profundidade(id_no, arestas_retorno);
 
-            if (pergunta_imprimir_arquivo("arvore_caminhamento_profundidade.txt")) {
-                cout << "Metodo de impressao em arquivo nao implementado" << endl;
+            if (arvore_dfs) {
+                // Impressao em tela
+                cout << "\nArvore DFS:\n";
+                for (No* no : arvore_dfs->lista_adj) {
+                    cout << no->id << " -> ";
+                    for (Aresta* aresta : no->arestas) {
+                        cout << aresta->id_no_alvo << " ";
+                    }
+                    cout << endl;
+                }
+
+                if (!arestas_retorno.empty()) {
+                    cout << "\nArestas de retorno:\n";
+                    for (auto& par : arestas_retorno) {
+                        cout << par.first << " -> " << par.second << endl;
+                    }
+                }
+
+                // Impressao em arquivo
+                if (pergunta_imprimir_arquivo("dfs_tree.txt")) {
+                    ofstream arquivo("dfs_tree.txt");
+                    if (arquivo.is_open()) {
+                        arquivo << "Arvore DFS a partir de " << id_no << ":\n";
+                        for (No* no : arvore_dfs->lista_adj) {
+                            arquivo << no->id << " -> ";
+                            for (Aresta* aresta : no->arestas) {
+                                arquivo << aresta->id_no_alvo << " ";
+                            }
+                            arquivo << "\n";
+                        }
+                        if (!arestas_retorno.empty()) {
+                            arquivo << "\nArestas de retorno:\n";
+                            for (auto& par : arestas_retorno) {
+                                arquivo << par.first << " -> " << par.second << "\n";
+                            }
+                        }
+                        arquivo.close();
+                        cout << "Arquivo salvo com sucesso!" << endl;
+                    } else {
+                        cout << "Erro ao criar arquivo de saida!" << endl;
+                    }
+                }
             }
 
-            delete arvore_caminhamento_profundidade;
+            delete arvore_dfs;
             break;
         }
 

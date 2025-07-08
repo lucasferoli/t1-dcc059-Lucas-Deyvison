@@ -282,9 +282,78 @@ Grafo * Grafo::arvore_geradora_minima_kruskal(vector<char> ids_nos) {
     return nullptr;
 }
 
-Grafo * Grafo::arvore_caminhamento_profundidade(char id_no) {
-    cout<<"Metodo nao implementado"<<endl;
-    return nullptr;
+Grafo* Grafo::arvore_caminhamento_profundidade(char id_no, vector<pair<char, char>>& arestas_retorno) {
+    // Verifica se o vértice existe
+    No* no_inicial = nullptr;
+    for (No* no : lista_adj) {
+        if (no->id == id_no) {
+            no_inicial = no;
+            break;
+        }
+    }
+    if (!no_inicial) {
+        cout << "Erro: Vértice '" << id_no << "' não encontrado!" << endl;
+        return nullptr;
+    }
+
+    // Cria um novo grafo para a árvore DFS
+    Grafo* arvore_dfs = new Grafo();
+    arvore_dfs->in_direcionado = this->in_direcionado;
+    arvore_dfs->in_ponderado_aresta = this->in_ponderado_aresta;
+    arvore_dfs->in_ponderado_vertice = this->in_ponderado_vertice;
+
+    // Estruturas auxiliares
+    unordered_map<char, bool> visitados;
+    unordered_map<char, char> pai;
+
+    arestas_retorno.clear(); // Limpa o vetor antes de usar
+
+    // DFS iterativa com pilha
+    stack<char> pilha;
+    pilha.push(id_no);
+    visitados[id_no] = true;
+    arvore_dfs->lista_adj.push_back(new No{id_no, 0, {}});
+
+    while (!pilha.empty()) {
+        char atual = pilha.top();
+        pilha.pop();
+
+        // Encontra o nó atual na lista de adjacência
+        No* no_atual = nullptr;
+        for (No* no : lista_adj) {
+            if (no->id == atual) {
+                no_atual = no;
+                break;
+            }
+        }
+
+        // Processa vizinhos
+        for (Aresta* aresta : no_atual->arestas) {
+            char vizinho = aresta->id_no_alvo;
+
+            if (!visitados[vizinho]) {
+                // Aresta de árvore
+                visitados[vizinho] = true;
+                pai[vizinho] = atual;
+                pilha.push(vizinho);
+
+                // Adiciona à árvore DFS
+                arvore_dfs->lista_adj.push_back(new No{vizinho, 0, {}});
+                Aresta* nova_aresta = new Aresta{vizinho, aresta->peso};
+                for (No* no : arvore_dfs->lista_adj) {
+                    if (no->id == atual) {
+                        no->arestas.push_back(nova_aresta);
+                        break;
+                    }
+                }
+            } else if (vizinho != pai[atual]) {
+                // Aresta de retorno (para grafos não direcionados)
+                arestas_retorno.push_back({atual, vizinho});
+            }
+        }
+    }
+
+    return arvore_dfs;
 }
 
 int Grafo::raio() {
