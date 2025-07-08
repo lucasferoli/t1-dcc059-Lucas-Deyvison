@@ -22,7 +22,10 @@ public:
     vector<char> caminho_minimo_floyd(char id_no, char id_no_b);     // d
     Grafo* arvore_geradora_minima_prim(vector<char> ids_nos);        // e
     Grafo* arvore_geradora_minima_kruskal(vector<char> ids_nos);     // f
+    int encontrar(vector<Subconjunto>& subconjuntos, int i);//f
+    void unir(vector<Subconjunto>& subconjuntos, int x, int y); //f
     Grafo* arvore_caminhamento_profundidade(char id_no);             // g
+    vector<int> dijkstra_distancias(char origem); //h
     int raio();                                                      // h 1
     int diametro();                                                  // h 2
     vector<char> centro();                                           // h 3
@@ -39,6 +42,7 @@ public:
 private:
     // Método auxiliar para processar linhas de arestas
     void adicionarAresta(char origem, char destino, int peso = 1);
+    int indice_no(char id_no);
 };
 
 #endif // GRAFO_H
