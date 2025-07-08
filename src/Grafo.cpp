@@ -97,19 +97,11 @@ vector<char> Grafo::fecho_transitivo_direto(char id_no) {
 
      No* no_inicial = nullptr;
      
-cout << "Buscando no: " << id_no << endl;
 for (No* no : lista_adj) {
-    cout << "No na lista: " << no->id << endl;
     if (no->id == id_no) {
         no_inicial = no;
         break;
     }
-}
-
-cout << "Nos presentes no grafo:" << endl;
-
-for (No* no : lista_adj) {
-    cout << " - " << no->id << endl;
 }
 
 

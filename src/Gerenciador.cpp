@@ -32,9 +32,9 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_direto = grafo->fecho_transitivo_direto(id_no);
 
-            cout << "Fecho transitivo direto a partir do no '" << id_no << "':" << endl;
+            
             for (char id : fecho_transitivo_direto) {
-                cout << id << " ";
+                cout << id << ",";
             }
             cout << endl << endl;
 
@@ -43,7 +43,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 if (arquivo_saida.is_open()) {
                 arquivo_saida << "Fecho transitivo direto a partir do no '" << id_no << "':\n";
                 for (char id : fecho_transitivo_direto) {
-                    arquivo_saida << id << " ";
+                    arquivo_saida << id << ",";
                 }
                 arquivo_saida << "\nTotal: " << fecho_transitivo_direto.size() << " vertices\n";
                 arquivo_saida.close();
@@ -59,26 +59,22 @@ void Gerenciador::comandos(Grafo* grafo) {
             char id_no = get_id_entrada();
             vector<char> fecho_transitivo_indireto = grafo->fecho_transitivo_indireto(id_no);
 
-            cout << "\nFecho transitivo indireto do vertice '" << id_no << "':" << endl;
             if (fecho_transitivo_indireto.empty()) {
                 cout << "Nenhum vertice alcanca o vertice '" << id_no << "'" << endl;
             } else {
                 for (char vertice : fecho_transitivo_indireto) {
-                cout << vertice << " ";
+                cout << vertice << ",";
                 }
                 cout << endl;
-                cout << "Total: " << fecho_transitivo_indireto.size() << " vertices" << endl;
             }
             cout << endl;
 
             if (pergunta_imprimir_arquivo("fecho_trans_indir.txt")) {
                 ofstream arquivo_saida("fecho_trans_indir.txt");
                 if (arquivo_saida.is_open()) {
-                arquivo_saida << "Fecho transitivo indireto do vertice '" << id_no << "':\n";
                 for (char vertice : fecho_transitivo_indireto) {
-                    arquivo_saida << vertice << " ";
+                    arquivo_saida << vertice << ",";
                 }
-                arquivo_saida << "\nTotal: " << fecho_transitivo_indireto.size() << " vertices\n";
                 arquivo_saida.close();
                 cout << "Resultado salvo em 'fecho_trans_indir.txt'" << endl << endl;
                 } else {
@@ -108,10 +104,9 @@ void Gerenciador::comandos(Grafo* grafo) {
                 vector<char> rota = grafo->caminho_minimo_floyd(de, para);
 
                 if (!rota.empty()) {
-                    cout << "\nRota encontrada (" << rota.size() << " vertices):\n";
                     for (size_t passo = 0; passo < rota.size(); passo++) {
                         cout << rota[passo];
-                        if (passo != rota.size() - 1) cout << " -> ";
+                        if (passo != rota.size() - 1) cout << ",";
                     }
                     cout << endl;
                 }
@@ -119,8 +114,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 if (pergunta_imprimir_arquivo("floyd_path.txt")) {
                     ofstream saida("floyd_path.txt");
                     if (saida) {
-                        saida << "De: " << de << "\nPara: " << para << "\nRota: ";
-                        copy(rota.begin(), rota.end(), ostream_iterator<char>(saida, " "));
+                        copy(rota.begin(), rota.end(), ostream_iterator<char>(saida, ","));
                         cout << "Arquivo salvo com sucesso!" << endl;
                     }
                 }
@@ -189,7 +183,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                     if (!arestas_retorno.empty()) {
                         cout << "\nArestas de retorno:\n";
                         for (auto& par : arestas_retorno) {
-                            cout << par.first << " -> " << par.second << endl;
+                            cout << par.first << ": " << par.first << " -> " << par.second << endl;
                         }
                     }
 
