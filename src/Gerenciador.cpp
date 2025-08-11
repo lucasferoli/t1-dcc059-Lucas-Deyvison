@@ -1,4 +1,5 @@
 #include "Gerenciador.h"
+#include "Gulosos.h"
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -20,6 +21,9 @@ void Gerenciador::comandos(Grafo* grafo) {
         cout << "(f) Arvore Geradora Minima (Algoritmo de Kruskal);" << endl;
         cout << "(g) Arvore de caminhamento em profundidade;" << endl;
         cout << "(h) Raio, diametro, centro e periferia do grafo;" << endl;
+        cout << "(i) Guloso 2-Dominating Set;" << endl;
+        cout << "(j) Guloso Randomizado (2-Dominating Set);" << endl;
+        cout << "(k) Guloso Randomizado Reativo (2-Dominating Set);" << endl;
         cout << "(0) Sair;" << endl << endl;
 
         cout << "Opcao: ";
@@ -229,6 +233,86 @@ void Gerenciador::comandos(Grafo* grafo) {
                 }
                 break;
             }
+                    case 'i': {
+            Gulosos g(grafo);
+            vector<char> sol = g.guloso2Dominating();
+
+            cout << "Solução Guloso 2-Dominating Set: ";
+            for (char v : sol) cout << v << " ";
+            cout << endl << "Tamanho: " << sol.size() << endl;
+
+            if (pergunta_imprimir_arquivo("guloso_2dom.txt")) {
+                ofstream arquivo_saida("guloso_2dom.txt");
+                if (arquivo_saida.is_open()) {
+                    arquivo_saida << "Solução Guloso 2-Dominating Set:\n";
+                    for (char v : sol) arquivo_saida << v << " ";
+                    arquivo_saida << "\nTamanho: " << sol.size() << "\n";
+                    arquivo_saida.close();
+                    cout << "Resultado salvo em 'guloso_2dom.txt'" << endl << endl;
+                } else {
+                    cout << "Erro ao criar arquivo de saida!" << endl << endl;
+                }
+            }
+            break;
+        }
+
+        case 'j': {
+            double alpha;
+            cout << "Digite o valor de alpha (0.0 - 1.0): ";
+            cin >> alpha;
+
+            Gulosos g(grafo);
+            vector<char> sol = g.gulosoRandomizado(alpha);
+
+            cout << "Solução Guloso Randomizado: ";
+            for (char v : sol) cout << v << " ";
+            cout << endl << "Tamanho: " << sol.size() << endl;
+
+            if (pergunta_imprimir_arquivo("guloso_rand.txt")) {
+                ofstream arquivo_saida("guloso_rand.txt");
+                if (arquivo_saida.is_open()) {
+                    arquivo_saida << "Solução Guloso Randomizado (alpha=" << alpha << "):\n";
+                    for (char v : sol) arquivo_saida << v << " ";
+                    arquivo_saida << "\nTamanho: " << sol.size() << "\n";
+                    arquivo_saida.close();
+                    cout << "Resultado salvo em 'guloso_rand.txt'" << endl << endl;
+                } else {
+                    cout << "Erro ao criar arquivo de saida!" << endl << endl;
+                }
+            }
+            break;
+        }
+
+        case 'k': {
+            int maxIter, bloco;
+            cout << "Digite o número máximo de iterações: ";
+            cin >> maxIter;
+            cout << "Digite o tamanho do bloco para atualização das probabilidades: ";
+            cin >> bloco;
+
+            vector<double> alphas = {0.0, 0.25, 0.5, 0.75, 1.0};
+
+            Gulosos g(grafo);
+            vector<char> sol = g.gulosoRandomizadoReativo(maxIter, alphas, bloco);
+
+            cout << "Solução Guloso Randomizado Reativo: ";
+            for (char v : sol) cout << v << " ";
+            cout << endl << "Tamanho: " << sol.size() << endl;
+
+            if (pergunta_imprimir_arquivo("guloso_reativo.txt")) {
+                ofstream arquivo_saida("guloso_reativo.txt");
+                if (arquivo_saida.is_open()) {
+                    arquivo_saida << "Solução Guloso Randomizado Reativo:\n";
+                    for (char v : sol) arquivo_saida << v << " ";
+                    arquivo_saida << "\nTamanho: " << sol.size() << "\n";
+                    arquivo_saida.close();
+                    cout << "Resultado salvo em 'guloso_reativo.txt'" << endl << endl;
+                } else {
+                    cout << "Erro ao criar arquivo de saida!" << endl << endl;
+                }
+            }
+            break;
+        }
 
             case '0': {
                 exit(0);
