@@ -1,66 +1,73 @@
 #include "Gulosos.h"
 
+
 Gulosos::Gulosos(Grafo* grafo) : g(grafo) {
-    for (int i = 0; i < g->lista_adj.size(); i++) {
+    for (int i = 0; i < (int)g->lista_adj.size(); i++) {
         idParaIndice[g->lista_adj[i]->id] = i;
     }
 }
 
-std::vector<char> Gulosos::coberturaAte2Passos(char v) {
-    std::unordered_set<char> visitados;
-    std::queue<std::pair<char,int>> fila; // (vértice, distância)
+// Vizinhos diretos de v (inclui v)
+std::vector<char> Gulosos::vizinhosDiretos(char v) {
+    std::vector<char> res;
+    res.push_back(v);
+    int idx = idParaIndice[v];
+    for (Aresta* a : g->lista_adj[idx]->arestas) {
+        res.push_back(a->id_no_alvo);
+    }
+    return res;
+}
 
-    visitados.insert(v);
-    fila.push(std::make_pair(v, 0));
+// Atualiza dominados a partir do conjunto D usando contagem incremental
+void Gulosos::atualizarDominados(const std::vector<char>& D, std::vector<bool>& dominado) {
+    std::vector<int> contagem(g->lista_adj.size(), 0);
 
-    while (!fila.empty()) {
-        std::pair<char,int> frente = fila.front();
-        char atual = frente.first;
-        int dist = frente.second;
-        fila.pop();
-
-        if (dist == 2) continue;
-
-        int idx = idParaIndice[atual];
+    for (char v : D) {
+        int idx = idParaIndice[v];
+        contagem[idx]++;
         for (Aresta* a : g->lista_adj[idx]->arestas) {
-            if (!visitados.count(a->id_no_alvo)) {
-                visitados.insert(a->id_no_alvo);
-                fila.push(std::make_pair(a->id_no_alvo, dist+1));
-            }
+            contagem[idParaIndice[a->id_no_alvo]]++;
         }
     }
 
-    return std::vector<char>(visitados.begin(), visitados.end());
-}
-
-void Gulosos::marcarDominados(std::vector<bool>& dominado, const std::vector<char>& vertices) {
-    for (char v : vertices) {
-        dominado[idParaIndice[v]] = true;
+    for (size_t i = 0; i < contagem.size(); i++) {
+        dominado[i] = (contagem[i] >= 2);
     }
 }
 
 bool Gulosos::todosDominados(const std::vector<bool>& dominado) {
-    for (size_t i = 0; i < dominado.size(); i++) {
-        if (!dominado[i]) return false;
+    for (bool d : dominado) {
+        if (!d) return false;
     }
     return true;
 }
 
 std::vector<char> Gulosos::guloso2Dominating() {
+    std::vector<int> contagem(g->lista_adj.size(), 0); // contagem de dominância
     std::vector<bool> dominado(g->lista_adj.size(), false);
     std::vector<char> D;
+    std::unordered_set<char> emD;
 
-    while (!todosDominados(dominado)) {
+    while (true) {
+        if (std::all_of(dominado.begin(), dominado.end(), [](bool d){ return d; })) break;
+
         char melhor = '\0';
         size_t melhorCobertura = 0;
 
         for (No* no : g->lista_adj) {
-            if (std::find(D.begin(), D.end(), no->id) != D.end()) continue;
+            if (emD.count(no->id)) continue;
 
-            std::vector<char> cobertos = coberturaAte2Passos(no->id);
+            int idx = idParaIndice[no->id];
             size_t novos = 0;
-            for (char v : cobertos) {
-                if (!dominado[idParaIndice[v]]) novos++;
+
+            std::vector<int> tempContagem = contagem;
+            tempContagem[idx]++;
+            if (tempContagem[idx] == 2) novos++;
+
+            for (Aresta* a : g->lista_adj[idx]->arestas) {
+                int vizIdx = idParaIndice[a->id_no_alvo];
+                tempContagem[vizIdx]++;
+                if (tempContagem[vizIdx] == 2) novos++;
             }
 
             if (novos > melhorCobertura) {
@@ -69,12 +76,26 @@ std::vector<char> Gulosos::guloso2Dominating() {
             }
         }
 
+        if (melhor == '\0') break;
+
         D.push_back(melhor);
-        marcarDominados(dominado, coberturaAte2Passos(melhor));
+        emD.insert(melhor);
+
+        int idxMelhor = idParaIndice[melhor];
+        contagem[idxMelhor]++;
+        if (contagem[idxMelhor] == 2) dominado[idxMelhor] = true;
+
+        for (Aresta* a : g->lista_adj[idxMelhor]->arestas) {
+            int vizIdx = idParaIndice[a->id_no_alvo];
+            contagem[vizIdx]++;
+            if (contagem[vizIdx] == 2) dominado[vizIdx] = true;
+        }
     }
 
     return D;
 }
+
+
 
 std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
     std::vector<bool> dominado(g->lista_adj.size(), false);
@@ -87,20 +108,23 @@ std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
         struct Candidato { char id; size_t cobertura; };
         std::vector<Candidato> candidatos;
 
-        // Calcula a cobertura de cada candidato
         for (No* no : g->lista_adj) {
             if (std::find(D.begin(), D.end(), no->id) != D.end()) continue;
 
-            std::vector<char> cobertos = coberturaAte2Passos(no->id);
+            std::vector<char> tempD = D;
+            tempD.push_back(no->id);
+
+            std::vector<bool> tempDominado(g->lista_adj.size(), false);
+            atualizarDominados(tempD, tempDominado);
+
             size_t novos = 0;
-            for (char v : cobertos) {
-                if (!dominado[idParaIndice[v]]) novos++;
+            for (size_t i = 0; i < dominado.size(); i++) {
+                if (!dominado[i] && tempDominado[i]) novos++;
             }
 
             candidatos.push_back({no->id, novos});
         }
 
-        // Ordena candidatos pela cobertura (decrescente)
         std::sort(candidatos.begin(), candidatos.end(), [](const Candidato& a, const Candidato& b) {
             return a.cobertura > b.cobertura;
         });
@@ -108,7 +132,6 @@ std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
         size_t melhorCobertura = candidatos[0].cobertura;
         size_t piorCobertura = candidatos.back().cobertura;
 
-        // Calcula limite para RCL baseado na diferença entre melhor e pior
         double limite = melhorCobertura - alpha * (melhorCobertura - piorCobertura);
 
         std::vector<char> RCL;
@@ -120,22 +143,18 @@ std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
 
         char escolhido;
         if (alpha == 0.0) {
-            // Escolhe o melhor candidato (determinístico)
             escolhido = candidatos[0].id;
         } else {
-            // Escolha aleatória dentro da RCL
             std::uniform_int_distribution<> dist(0, (int)RCL.size() - 1);
             escolhido = RCL[dist(gen)];
         }
 
-        marcarDominados(dominado, coberturaAte2Passos(escolhido));
         D.push_back(escolhido);
+        atualizarDominados(D, dominado);
     }
 
     return D;
 }
-
-
 
 std::vector<char> Gulosos::gulosoRandomizadoReativo(int maxIter, const std::vector<double>& alphas, int bloco) {
     std::vector<double> prob(alphas.size(), 1.0 / alphas.size());
@@ -163,7 +182,7 @@ std::vector<char> Gulosos::gulosoRandomizadoReativo(int maxIter, const std::vect
         somaQualidade[idxAlpha] += 1.0 / sol.size();
         contagem[idxAlpha]++;
 
-        if ((iter+1) % bloco == 0) {
+        if ((iter + 1) % bloco == 0) {
             for (int i = 0; i < (int)alphas.size(); i++) {
                 if (contagem[i] > 0) {
                     prob[i] = somaQualidade[i] / contagem[i];

@@ -4,23 +4,19 @@
 #include "Grafo.h"
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
-#include <queue>
 #include <algorithm>
 #include <random>
+#include <unordered_set>
+
 
 class Gulosos {
 private:
     Grafo* g;
     std::unordered_map<char, int> idParaIndice; // Mapeia id -> índice no lista_adj
+    std::vector<char> vizinhosDiretos(char v);
 
-    // Busca vértices até distância 2 de um vértice v
-    std::vector<char> coberturaAte2Passos(char v);
+    void atualizarDominados(const std::vector<char>& D, std::vector<bool>& dominado);
 
-    // Marca como dominados
-    void marcarDominados(std::vector<bool>& dominado, const std::vector<char>& vertices);
-
-    // Checa se todos estão dominados
     bool todosDominados(const std::vector<bool>& dominado);
 
 public:

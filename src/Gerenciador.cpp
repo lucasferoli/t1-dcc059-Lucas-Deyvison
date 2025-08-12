@@ -233,8 +233,10 @@ void Gerenciador::comandos(Grafo* grafo) {
                 }
                 break;
             }
-                    case 'i': {
-            Gulosos g(grafo);
+            case 'i': {
+            cout << "Pelo amor de deus pi" << endl << endl;
+
+           /* Gulosos g(grafo);
             vector<char> sol = g.guloso2Dominating();
 
             cout << "Solução Guloso 2-Dominating Set: ";
@@ -252,7 +254,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 } else {
                     cout << "Erro ao criar arquivo de saida!" << endl << endl;
                 }
-            }
+            }*/
             break;
         }
 
