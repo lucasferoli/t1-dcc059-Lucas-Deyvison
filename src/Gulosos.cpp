@@ -43,57 +43,88 @@ bool Gulosos::todosDominados(const std::vector<bool>& dominado) {
 }
 
 std::vector<char> Gulosos::guloso2Dominating() {
-    std::vector<int> contagem(g->lista_adj.size(), 0); // contagem de dominância
-    std::vector<bool> dominado(g->lista_adj.size(), false);
+    const int n = (int)g->lista_adj.size();
+
+    // contagem[v] = quantas incidências (v + vizinhos em D) já contam para v
+    std::vector<int> contagem(n, 0);
+    std::vector<bool> dominado(n, false);
     std::vector<char> D;
     std::unordered_set<char> emD;
 
-    while (true) {
-        if (std::all_of(dominado.begin(), dominado.end(), [](bool d){ return d; })) break;
+    auto atualizaDominado = [&](const std::vector<int>& c, std::vector<bool>& dom) {
+        dom.resize(n);
+        for (int i = 0; i < n; ++i) dom[i] = (c[i] >= 2);
+    };
 
+    atualizaDominado(contagem, dominado);
+
+    auto aplicarIncremento = [&](char v, std::vector<int>& c) {
+        int idx = idParaIndice[v];
+        c[idx]++;
+        for (Aresta* a : g->lista_adj[idx]->arestas) {
+            c[idParaIndice[a->id_no_alvo]]++;
+        }
+    };
+
+    auto todos2Dominados = [&]() {
+        for (bool d : dominado) if (!d) return false;
+        return true;
+    };
+
+    while (!todos2Dominados()) {
         char melhor = '\0';
-        size_t melhorCobertura = 0;
+        size_t bestNovos2 = 0; // quantos passam a ficar >= 2
+        int bestGanho = -1;    // ganho parcial rumo a 2 (cap em 2)
+        int bestDeg = -1;      // desempate por grau
 
         for (No* no : g->lista_adj) {
             if (emD.count(no->id)) continue;
 
-            int idx = idParaIndice[no->id];
-            size_t novos = 0;
+            std::vector<int> tmp = contagem;
+            aplicarIncremento(no->id, tmp);
 
-            std::vector<int> tempContagem = contagem;
-            tempContagem[idx]++;
-            if (tempContagem[idx] == 2) novos++;
-
-            for (Aresta* a : g->lista_adj[idx]->arestas) {
-                int vizIdx = idParaIndice[a->id_no_alvo];
-                tempContagem[vizIdx]++;
-                if (tempContagem[vizIdx] == 2) novos++;
+            size_t novos2 = 0;
+            int ganho = 0;
+            for (int i = 0; i < n; ++i) {
+                int before = std::min(2, contagem[i]);
+                int after  = std::min(2, tmp[i]);
+                ganho += (after - before);
+                if (!dominado[i] && tmp[i] >= 2) novos2++;
             }
 
-            if (novos > melhorCobertura) {
-                melhorCobertura = novos;
+            int deg = (int)g->lista_adj[idParaIndice[no->id]]->arestas.size();
+
+            if (novos2 > bestNovos2 ||
+               (novos2 == bestNovos2 && ganho > bestGanho) ||
+               (novos2 == bestNovos2 && ganho == bestGanho && deg > bestDeg)) {
                 melhor = no->id;
+                bestNovos2 = novos2;
+                bestGanho = ganho;
+                bestDeg = deg;
             }
         }
 
-        if (melhor == '\0') break;
+        // Fallback defensivo (não deve ocorrer): pega qualquer vértice fora de D
+        if (melhor == '\0') {
+            for (No* no : g->lista_adj) {
+                if (!emD.count(no->id)) { melhor = no->id; break; }
+            }
+        }
 
+        // Aplica a escolha
         D.push_back(melhor);
         emD.insert(melhor);
+        aplicarIncremento(melhor, contagem);
 
-        int idxMelhor = idParaIndice[melhor];
-        contagem[idxMelhor]++;
-        if (contagem[idxMelhor] == 2) dominado[idxMelhor] = true;
-
-        for (Aresta* a : g->lista_adj[idxMelhor]->arestas) {
-            int vizIdx = idParaIndice[a->id_no_alvo];
-            contagem[vizIdx]++;
-            if (contagem[vizIdx] == 2) dominado[vizIdx] = true;
+        // Atualiza dominados a partir da contagem incremental
+        for (int i = 0; i < n; ++i) {
+            if (contagem[i] >= 2) dominado[i] = true;
         }
     }
 
     return D;
 }
+
 
 
 

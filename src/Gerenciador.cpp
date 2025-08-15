@@ -11,6 +11,13 @@
 using namespace std;
 
 void Gerenciador::comandos(Grafo* grafo) {
+    cout << "Vertices lidos:" << endl;
+for (auto no : grafo->lista_adj) {
+    cout << "ID: " << no->id << " Arestas: ";
+    for (auto a : no->arestas) cout << a->id_no_alvo << " ";
+    cout << endl;
+}
+
     while (true) {
         cout << "Digite uma das opcoes abaixo e pressione enter:" << endl << endl;
         cout << "(a) Fecho transitivo direto de um no;" << endl;
@@ -236,7 +243,7 @@ void Gerenciador::comandos(Grafo* grafo) {
             case 'i': {
             cout << "Pelo amor de deus pi" << endl << endl;
 
-           /* Gulosos g(grafo);
+           Gulosos g(grafo);
             vector<char> sol = g.guloso2Dominating();
 
             cout << "Solução Guloso 2-Dominating Set: ";
@@ -254,7 +261,7 @@ void Gerenciador::comandos(Grafo* grafo) {
                 } else {
                     cout << "Erro ao criar arquivo de saida!" << endl << endl;
                 }
-            }*/
+            }
             break;
         }
 
