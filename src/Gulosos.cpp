@@ -1,6 +1,8 @@
 #include "Gulosos.h"
 
 
+#include <chrono>
+
 Gulosos::Gulosos(Grafo* grafo) : g(grafo) {
     for (int i = 0; i < (int)g->lista_adj.size(); i++) {
         idParaIndice[g->lista_adj[i]->id] = i;
@@ -45,7 +47,6 @@ bool Gulosos::todosDominados(const std::vector<bool>& dominado) {
 std::vector<char> Gulosos::guloso2Dominating() {
     const int n = (int)g->lista_adj.size();
 
-    // contagem[v] = quantas incidências (v + vizinhos em D) já contam para v
     std::vector<int> contagem(n, 0);
     std::vector<bool> dominado(n, false);
     std::vector<char> D;
@@ -71,11 +72,14 @@ std::vector<char> Gulosos::guloso2Dominating() {
         return true;
     };
 
+    // Início da contagem de tempo
+    auto start = std::chrono::high_resolution_clock::now();
+
     while (!todos2Dominados()) {
         char melhor = '\0';
-        size_t bestNovos2 = 0; // quantos passam a ficar >= 2
-        int bestGanho = -1;    // ganho parcial rumo a 2 (cap em 2)
-        int bestDeg = -1;      // desempate por grau
+        size_t bestNovos2 = 0;
+        int bestGanho = -1;
+        int bestDeg = -1;
 
         for (No* no : g->lista_adj) {
             if (emD.count(no->id)) continue;
@@ -104,23 +108,24 @@ std::vector<char> Gulosos::guloso2Dominating() {
             }
         }
 
-        // Fallback defensivo (não deve ocorrer): pega qualquer vértice fora de D
         if (melhor == '\0') {
             for (No* no : g->lista_adj) {
                 if (!emD.count(no->id)) { melhor = no->id; break; }
             }
         }
 
-        // Aplica a escolha
         D.push_back(melhor);
         emD.insert(melhor);
         aplicarIncremento(melhor, contagem);
 
-        // Atualiza dominados a partir da contagem incremental
         for (int i = 0; i < n; ++i) {
             if (contagem[i] >= 2) dominado[i] = true;
         }
     }
+
+    // Fim da contagem de tempo
+    auto end = std::chrono::high_resolution_clock::now();
+    tempoExecucaoGuloso2Dominating = std::chrono::duration<double>(end - start).count();
 
     return D;
 }

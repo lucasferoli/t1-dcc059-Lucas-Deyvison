@@ -241,7 +241,6 @@ for (auto no : grafo->lista_adj) {
                 break;
             }
             case 'i': {
-            cout << "Pelo amor de deus pi" << endl << endl;
 
            Gulosos g(grafo);
             vector<char> sol = g.guloso2Dominating();
@@ -249,6 +248,7 @@ for (auto no : grafo->lista_adj) {
             cout << "Solução Guloso 2-Dominating Set: ";
             for (char v : sol) cout << v << " ";
             cout << endl << "Tamanho: " << sol.size() << endl;
+            cout << endl << "Tempo: " << g.getTempoExecucao() << endl;
 
             if (pergunta_imprimir_arquivo("guloso_2dom.txt")) {
                 ofstream arquivo_saida("guloso_2dom.txt");
