@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include <iomanip>
 
 using namespace std;
 
@@ -272,10 +273,13 @@ for (auto no : grafo->lista_adj) {
 
             Gulosos g(grafo);
             vector<char> sol = g.gulosoRandomizado(alpha);
+            
 
             cout << "Solução Guloso Randomizado: ";
             for (char v : sol) cout << v << " ";
             cout << endl << "Tamanho: " << sol.size() << endl;
+            cout << fixed << setprecision(9);
+            cout << endl << "Tempo: " << g.getTempoExecucaoRandomizado() << endl;
 
             if (pergunta_imprimir_arquivo("guloso_rand.txt")) {
                 ofstream arquivo_saida("guloso_rand.txt");

@@ -43,7 +43,6 @@ bool Gulosos::todosDominados(const std::vector<bool>& dominado) {
     }
     return true;
 }
-
 std::vector<char> Gulosos::guloso2Dominating() {
     const int n = (int)g->lista_adj.size();
 
@@ -130,10 +129,10 @@ std::vector<char> Gulosos::guloso2Dominating() {
     return D;
 }
 
-
-
-
 std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
+    // Início da contagem de tempo
+    auto start = std::chrono::high_resolution_clock::now();
+
     std::vector<bool> dominado(g->lista_adj.size(), false);
     std::vector<char> D;
 
@@ -188,6 +187,10 @@ std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
         D.push_back(escolhido);
         atualizarDominados(D, dominado);
     }
+
+    // Fim da contagem de tempo
+    auto end = std::chrono::high_resolution_clock::now();
+    tempoExecucaoGulosoRandomizado = std::chrono::duration<double>(end - start).count();
 
     return D;
 }
