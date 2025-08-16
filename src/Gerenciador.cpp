@@ -311,11 +311,13 @@ for (auto no : grafo->lista_adj) {
             cout << "Solução Guloso Randomizado Reativo: ";
             for (char v : sol) cout << v << " ";
             cout << endl << "Tamanho: " << sol.size() << endl;
+            cout << "Tempo de execução: " << g.getTempoExecucaoRandomizadoReativo() << " segundos" << endl;
 
             if (pergunta_imprimir_arquivo("guloso_reativo.txt")) {
                 ofstream arquivo_saida("guloso_reativo.txt");
                 if (arquivo_saida.is_open()) {
                     arquivo_saida << "Solução Guloso Randomizado Reativo:\n";
+
                     for (char v : sol) arquivo_saida << v << " ";
                     arquivo_saida << "\nTamanho: " << sol.size() << "\n";
                     arquivo_saida.close();

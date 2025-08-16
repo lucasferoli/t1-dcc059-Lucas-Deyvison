@@ -196,6 +196,8 @@ std::vector<char> Gulosos::gulosoRandomizado(double alpha) {
 }
 
 std::vector<char> Gulosos::gulosoRandomizadoReativo(int maxIter, const std::vector<double>& alphas, int bloco) {
+    auto inicio = std::chrono::high_resolution_clock::now();
+
     std::vector<double> prob(alphas.size(), 1.0 / alphas.size());
     std::vector<double> somaQualidade(alphas.size(), 0.0);
     std::vector<int> contagem(alphas.size(), 0);
@@ -234,6 +236,10 @@ std::vector<char> Gulosos::gulosoRandomizadoReativo(int maxIter, const std::vect
             distProb = std::discrete_distribution<>(prob.begin(), prob.end());
         }
     }
+
+    auto fim = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duracao = fim - inicio;
+    tempoExecucaoGulosoRandomizadoReativo = duracao.count();
 
     return melhorSol;
 }
